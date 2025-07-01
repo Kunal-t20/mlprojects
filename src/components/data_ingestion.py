@@ -9,6 +9,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 from src.components.data_transformation import DataTransformationConfig,DataTransformation
+from src.components.model_trainer import ModelTrainerConfig,ModelTrainer
+
+
 
 @dataclass #decorator
 class DataIngestionConfig:
@@ -49,8 +52,20 @@ class DataIngestion:
             raise CustomException(e,sys)
         
 if __name__=='__main__':
-    obj=DataIngestion()
-    train_data,test_data=obj.initiate_data_ingestion()
+    obj = DataIngestion()
+    train_data, test_data = obj.initiate_data_ingestion()
 
-    data_transformation=DataTransformation()
-    data_transformation.initiate_data_transformation(train_data,test_data)
+    data_transformation = DataTransformation()
+    preprocessor_path = data_transformation.data_transformation_config.preprocessor_obj_file_path
+
+    train_arr, test_arr, _ = data_transformation.initiate_data_transformation(
+        train_data, test_data, preprocessor_path
+    )
+
+    model_trainer = ModelTrainer()
+    r2_score = model_trainer.initiate_model(
+        train_array=train_arr,
+        test_array=test_arr
+    )
+
+    print(f"\n✅ Model training completed with R² Score: {r2_score}")
